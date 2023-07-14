@@ -1,0 +1,76 @@
+captcha:
+  img-height: 80
+  img-width: 240
+  key-long: 6
+cors:
+  mode: whitelist
+  whitelist:
+    - allow-credentials: true
+      allow-headers: content-type
+      allow-methods: GET, POST
+      allow-origin: example1.com
+      expose-headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type
+    - allow-credentials: true
+      allow-headers: content-type
+      allow-methods: GET, POST
+      allow-origin: example2.com
+      expose-headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type
+jwt:
+  buffer-time: 43200
+  expires-time: 86400
+  issuer: pddZl
+  signing-key: pddzl
+
+# zap logger configuration
+zap:
+  level: ${DRAWER_LOG_LEVEL}
+  format: console
+  prefix: ''
+  director: ${DRAWER_LOG_DIR}/server.log
+  show-line: true
+  encode-level: CapitalColorLevelEncoder
+  stacktrace-key: stacktrace
+  log-in-console: true
+
+mysql:
+  config: charset=utf8&parseTime=true&loc=Asia%2FShanghai
+  db-name: ${DRAWER_MYSQL_NAME}
+  host: ${DRAWER_MYSQL_HOST}
+  log-mode: false
+  log-zap: true
+  max-idle-conns: 10
+  max-open-conns: 100
+  password: ${DRAWER_MYSQL_PASS}
+  port: ${DRAWER_MYSQL_PORT}
+  username: ${DRAWER_MYSQL_USER}
+redis:
+  db: ${DRAWER_REDIS_DB}
+  host: ${DRAWER_REDIS_HOST}
+  password: ${DRAWER_REDIS_PASS}
+  port: ${DRAWER_REDIS_PORT}
+rotatelogs:
+  compress: true
+  max-age: 90
+  max-backups: 90
+  max-size: 10
+# system configuration
+system:
+  env: 'production' # Change to "develop" to skip authentication for development mode
+  host: '0.0.0.0'
+  port: '${DRAWER_PORT}'
+  stack: true
+  use-multipoint: false
+
+# 创建license的接口
+license:
+  url: "${DRAWER_LICENSE_API}"
+  auth: ${DRAWER_LICENSE_AUTH}
+  authorization: "${DRAWER_LICENSE_API_AUTH}"
+
+# SMTP信息
+smtp:
+  user: "${DRAWER_SMTP_USER}"
+  password: "${DRAWER_SMTP_PASS}"
+  server: "${DRAWER_SMTP_SERVER}"
+  port: ${DRAWER_SMTP_PORT}
+  Starttls: ${DRAWER_SMTP_STARTTLS}

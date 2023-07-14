@@ -1,0 +1,59 @@
+pipeline {
+  agent { label 'node' }
+
+  environment {
+    PROJECT_NAME = 'drawer-backend'
+    BASE_DIR = './backend'
+  }
+
+  stages {
+    stage('NOCI check') {
+      steps {
+        abortPreviousBuilds()
+
+        noci action: 'check'
+
+        load_envs_common()
+      }
+    }
+
+    stage('Print information') {
+      steps {
+        container('devops') {
+          printInformation()
+        }
+      }
+    }
+
+    stage('Build/Push docker image') {
+      when { not { expression { BRANCH_NAME ==~ '^PR.*' } } }
+
+      steps {
+        container('devops') {
+          // Build/Push docker image
+            script {
+              def image_name = "${env.PROJECT_NAME}"
+              def base_dir = "${env.BASE_DIR}"
+
+
+              docker.withRegistry("http://${env.DOCKER_REGISTRY_ADDR}", "${env.DOCKER_REGISTRY_SECRET_ID}") {
+              image = docker.build("${env.DOCKER_REGISTRY_ADDR}/${env.DOCKER_REGISTRY_PROJECT_NAME}/${image_name}:${env.BRANCH_NAME}", "--network host --pull -f ${base_dir}/Dockerfile --build-arg DOCKERFILE_DIR=${base_dir} --build-arg CACHE_DATE=\"\$(date)\" ${base_dir}")
+
+              image.push()
+              sh "echo '\n- ${env.DOCKER_REGISTRY_ADDR}/${env.DOCKER_REGISTRY_PROJECT_NAME}/${image_name}:${env.BRANCH_NAME}' >> ${env.BUILD_OUTPUT_FILE}"
+
+           }
+             env.DOCKER_IMAGE_DIGEST = sh(script: "docker inspect --format='{{index .RepoDigests 0}}' ${env.DOCKER_REGISTRY_ADDR}/${env.DOCKER_REGISTRY_PROJECT_NAME}/${image_name}:${env.BRANCH_NAME}", returnStdout: true).trim()split('@')[1]
+             sh "echo '\n- Docker image digest: ${env.DOCKER_IMAGE_DIGEST}' >> ${env.BUILD_OUTPUT_FILE}"
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      noci action: 'postProcess'
+    }
+  }
+}
