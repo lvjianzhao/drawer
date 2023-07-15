@@ -25,6 +25,13 @@
 
 admin/123456
 
+### 导入数据
+
+```shell
+# 自行准备mysql数据库，并把下面的SQL文件导入到库中即可
+backend/initialize/init_drawer.sql
+```
+
 
 ### 前端
 
